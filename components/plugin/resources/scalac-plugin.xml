@@ -1,0 +1,4 @@
+<plugin>
+  <name>dyno</name>
+  <classname>dyno.plugin.Dyno</classname>
+</plugin>

@@ -21,8 +21,10 @@ fi
 
 SCALA_VERSION=2.11.0-RC1
 DYNO_VERSION=0.1-SNAPSHOT
-PLUGIN_JAR=$DYNO_PATH/components/plugin/target/scala-$SCALA_VERSION/stagium-plugin_$SCALA_VERSION-$DYNO_VERSION.jar
-RUNTIME_JAR=$DYNO_PATH/components/runtime/target/scala-$SCALA_VERSION/stagium-runtime_$SCALA_VERSION-$DYNO_VERSION.jar
+PLUGIN_JAR=$DYNO_PATH/components/plugin/target/scala-$SCALA_VERSION/dyno-plugin_$SCALA_VERSION-$DYNO_VERSION.jar
+
+echo $PLUGIN_JAR
+echo $RUNTIME_JAR
 
 me=`basename $0`
 if [ "$me" == "dy-scalac" ]; then
@@ -52,7 +54,6 @@ function checkjar {
   fi
 }
 
-checkjar $PLUGIN_JAR stagium-plugin/package
-checkjar $RUNTIME_JAR stagium-runtime/package
+checkjar $PLUGIN_JAR package
 
-$SCALA_PATH_211/$target -bootclasspath $RUNTIME_JAR:$PLUGIN_JAR -Xplugin:$PLUGIN_JAR $@
+$SCALA_PATH_211/$target -bootclasspath $PLUGIN_JAR -Xplugin:$PLUGIN_JAR $@
