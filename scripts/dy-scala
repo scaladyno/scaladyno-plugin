@@ -1,0 +1,58 @@
+#!/bin/bash
+if [ "$DYNO_PATH" == "" ] 
+then 
+  DYNO_PATH="`dirname \"$0\"`"                  # relative
+  DYNO_PATH="`( cd \"$DYNO_PATH\" && pwd )`"  # absolutized and normalized
+fi
+if [ "$SCALA_PATH_211" == "" ] 
+then
+  SCALA_PATH_211="`dirname $(which scalac)`"
+  SCALA_PATH_211="`( cd \"$SCALA_PATH_211\" && pwd )`"
+fi
+
+if [ "$DYNO_PATH" == "" -o "$SCALA_PATH_211" == "" -o ! -f $SCALA_PATH_211/scalac -o ! -d $DYNO_PATH/components ]
+then
+  echo To use this script please set the DYNO_PATH and SCALA_PATH_211 environment variables such that:
+  echo " -" '$SCALA_PATH_211/scalac' "(currently $SCALA_PATH_211/scalac)"
+  echo " -" '$DYNO_PATH/components' "(currently $DYNO_PATH/components)"
+  echo are accessible
+  exit 1
+fi
+
+SCALA_VERSION=2.11.0-RC1
+DYNO_VERSION=0.1-SNAPSHOT
+PLUGIN_JAR=$DYNO_PATH/components/plugin/target/scala-$SCALA_VERSION/stagium-plugin_$SCALA_VERSION-$DYNO_VERSION.jar
+RUNTIME_JAR=$DYNO_PATH/components/runtime/target/scala-$SCALA_VERSION/stagium-runtime_$SCALA_VERSION-$DYNO_VERSION.jar
+
+me=`basename $0`
+if [ "$me" == "dy-scalac" ]; then
+  target=scalac
+elif [ "$me" == "dy-scala" ]; then
+  target=scala
+else
+  echo Unrecognized script name: $0
+  exit 1
+fi
+
+function checkjar {
+  if [ ! -f "$1" ]
+  then
+    echo "The script is going to build the required jar file $1 by running \"sbt $2\" [5s until build]"
+    sleep 5
+    cd $DYNO_PATH
+    sbt $2
+    cd -
+    if [ ! -f "$1" ]
+    then
+      echo "The required jar file has not been built by sbt. Please run \"sbt $2\""
+      exit 1
+    else
+      echo "The required jar file was built."
+    fi
+  fi
+}
+
+checkjar $PLUGIN_JAR stagium-plugin/package
+checkjar $RUNTIME_JAR stagium-runtime/package
+
+$SCALA_PATH_211/$target -bootclasspath $RUNTIME_JAR:$PLUGIN_JAR -Xplugin:$PLUGIN_JAR $@
