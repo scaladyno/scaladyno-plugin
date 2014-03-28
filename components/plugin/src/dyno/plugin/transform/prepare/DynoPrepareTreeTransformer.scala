@@ -22,6 +22,9 @@ trait DynoPrepareTreeTransformer {
 //        dynolog("  expr.tpe: " + expr.tpe)
 //        dynolog("  tpe.tpe: " + tpe.tpe)
 //        transform(expr)
+      case Block(stats, result) =>
+        val stats2 = stats.filter(_.tpe.isErroneous)
+        localTyper.typed(Block(stats2, result))
       case _ =>
         super.transform(tree)
     }

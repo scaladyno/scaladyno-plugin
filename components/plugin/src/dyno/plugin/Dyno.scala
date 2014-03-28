@@ -31,8 +31,8 @@ class Dyno(val global: Global) extends Plugin { plugin =>
 
   private object DynoPreparePhaseObj extends DynoPreparePhase { self =>
     val global: Dyno.this.global.type = Dyno.this.global
-    val runsAfter = List("refchecks")
-    override val runsRightAfter = Some("specialize")
+    val runsAfter = List("typer")
+    override val runsRightAfter = Some("typer")
     val phaseName = Dyno.this.name + "-prepare"
 
     import global._
