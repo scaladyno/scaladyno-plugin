@@ -61,7 +61,7 @@ object DynoBuild extends Build {
       cp
     },
     libraryDependencies ++= Seq(
-      "org.scala-lang" % "scala-partest" % "2.11.0-M3",
+      "org.scala-lang.modules" %% "scala-partest" % "1.0.0",
       "com.googlecode.java-diff-utils" % "diffutils" % "1.2.1"
     )
   )
