@@ -12,21 +12,21 @@ trait DynoPrepareTreeTransformer {
   import helper._
 
   class TreePreparer(unit: CompilationUnit) extends TypingTransformer(unit) {
-    override def transform(tree: Tree): Tree = tree match {
-//        // remove redundant asInstanceOf-s introduced by tailcalls
-//      case AsInstanceOf(expr, tpe) if expr.tpe =:= tpe.tpe && tpe.tpe.typeSymbol.isDynoClass =>
-//        dynolog("removed redundant asInstanceOf:")
-//        dynolog("  tree: " + tree)
-//        dynolog("  expr: " + tree)
-//        dynolog("  tree.tpe: " + tree.tpe)
-//        dynolog("  expr.tpe: " + expr.tpe)
-//        dynolog("  tpe.tpe: " + tpe.tpe)
-//        transform(expr)
-      case Block(stats, result) =>
-        val stats2 = stats.filter(_.tpe.isErroneous)
-        localTyper.typed(Block(stats2, result))
-      case _ =>
-        super.transform(tree)
-    }
+    override def transform(tree: Tree): Tree = { //[T <: Tree]
+      //debug:
+      println("prep: " + tree.getClass + " tpe: "+ tree.tpe + " tree: " +tree)
+      tree match {
+        //tpe is a field of all trees => it is a Type
+        //isErroneous can be applied to any tree through TreeContextApiImpl which is implemented by tree
+
+        case ValDef(mods, name, tpt, rhs) if (rhs.isErroneous || rhs.tpe.isErroneous || tpt.isErroneous || tpt.tpe.isErroneous) =>//ValdDef(mods: Modifiers, name: TermName, tpt: Tree, rhs: Tree)
+           EmptyTree
+        case x if (x.isErroneous || x.tpe.isErroneous) =>
+          //this.
+          //treeCopy.Block(tree, transformStats(stats.filter(!_.tpe.isErroneous), currentOwner), transform(expr))
+        case x =>
+          super.transform(x)
+      }
+    }  
   }
 }
