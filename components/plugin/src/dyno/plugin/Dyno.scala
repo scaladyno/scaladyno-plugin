@@ -3,9 +3,11 @@ package dyno.plugin
 import scala.tools.nsc.Global
 import scala.tools.nsc.plugins.Plugin
 import scala.tools.nsc.plugins.PluginComponent
-
 import transform._
 import metadata._
+import scala.tools.nsc.reporters.AbstractReporter
+import scala.tools.nsc.reporters.Reporter
+import scala.reflect.internal.util.Position
 
 /** Main miniboxing class */
 class Dyno(val global: Global) extends Plugin { plugin =>
@@ -17,6 +19,18 @@ class Dyno(val global: Global) extends Plugin { plugin =>
   val components = List[PluginComponent](
     DynoPreparePhaseObj
   )
+
+  // global reporter hack
+  global.reporter = new OurHackedReporter(global.reporter)
+  println("Reporter hacked...")
+
+  class OurHackedReporter(orig: Reporter) extends Reporter {
+    val super_info0 = orig.getClass.getMethod("info0", classOf[Position], classOf[String], classOf[Severity], classOf[Boolean])
+    def info0(pos: Position, msg: String, severity: Severity, force: Boolean): Unit = {
+      super_info0.invoke(orig, pos, msg, orig.WARNING, force.asInstanceOf[AnyRef])
+    }
+  }
+
 
   lazy val helper = new { val global: plugin.global.type = plugin.global } with DynoHelper
 
