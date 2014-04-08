@@ -11,6 +11,8 @@ object Test {
     def foo = new TheresNoSuchClass()
   }
 
+  trait D
+
   def main(args: Array[String]): Unit = {
     val y = 123
     println(y.toString)
@@ -20,6 +22,18 @@ object Test {
     val c = new C
     println(c.foo)
     println(T.bar)
+    c match {
+      case ??? =>
+        println("???")
+      case x: D =>
+        println("D")
+      case x: String =>
+        println("String")
+      case x: NoSuchClass2 =>
+        println("NoSuchClass2")
+      case NoSuchExtractor(x) =>
+        println("NoSuchExtractor")
+    }
   }
 }
 
