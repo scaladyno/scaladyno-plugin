@@ -24,7 +24,7 @@ trait DynoPreparePhase extends
       // [error]                           ^
       // [error] one error found
       // TODO: I've no idea why this happens - looks like an invalid tree produced by scalac
-      tree.foreach(tree => if (tree.tpe == null && !tree.toString.contains("apply$mcV$sp")) unit.error(tree.pos, s"[dyno-verify] tree not typed: $tree"))
+      //tree.foreach(tree => if (tree.tpe == null && !tree.toString.contains("apply$mcV$sp")) unit.error(tree.pos, s"[dyno-verify] tree not typed: $tree"))
       //println("new treepreparer")
       new TreePreparer(unit).transform(tree)
     }
