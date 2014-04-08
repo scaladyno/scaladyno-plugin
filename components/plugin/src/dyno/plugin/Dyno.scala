@@ -27,7 +27,15 @@ class Dyno(val global: Global) extends Plugin { plugin =>
   class OurHackedReporter(orig: Reporter) extends Reporter {
     val super_info0 = orig.getClass.getMethod("info0", classOf[Position], classOf[String], classOf[Severity], classOf[Boolean])
     def info0(pos: Position, msg: String, severity: Severity, force: Boolean): Unit = {
-      super_info0.invoke(orig, pos, msg, orig.WARNING, force.asInstanceOf[AnyRef])
+      val super_severity = severity match {
+        case ERROR =>
+          // put in map
+          orig.WARNING
+        case WARNING => orig.WARNING
+        case INFO => orig.INFO
+        case _ => orig.INFO
+      }
+      super_info0.invoke(orig, pos, msg, super_severity, force.asInstanceOf[AnyRef])
     }
   }
 

@@ -2,8 +2,8 @@ package dyno.plugin
 package transform
 package prepare
 import scala.tools.nsc.transform.InfoTransform
-
 import scala.reflect.internal.Flags._
+import scala.reflect.internal.util.Position
 
 trait DynoPrepareTreeTransformer extends InfoTransform {
   this: DynoPreparePhase =>
@@ -46,6 +46,23 @@ trait DynoPrepareTreeTransformer extends InfoTransform {
         case x =>
           super.transform(x)
       }
+    }
+  }
+
+  object ErrorCollector extends Traverser {
+
+    var buffer: List[(Position, String)] = Nil
+
+    override def traverse(tree: Tree) = tree match {
+      case _ =>
+        // if there's any error for tree.pos, store it in the buffer
+        super.traverse(tree)
+    }
+
+    def collect(tree: Tree): List[(Position, String)] = {
+      buffer = Nil
+      traverse(tree)
+      buffer
     }
   }
 }
