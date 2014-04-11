@@ -58,22 +58,17 @@ trait DynoPrepareTreeTransformer extends InfoTransform {
         case DefDef(_, _, _, _, tpt, rhs) if (rhs.isErroneous || tpt.isErroneous) =>
           treeToException(tree)
          // localTyper.typed(gen.mkAttributedIdent(Predef_???))
-          
-
         case ValDef(mods, name, tpt, rhs) if (rhs.isErroneous || tpt.isErroneous) =>
           treeToException(tree)
         //case Assign(lhs, rhs) if (lhs.isErroneous || rhs.isErroneous)=>
           //EmptyTree
-        case Block(stmts, expr) =>
-          println(ErrorCollector.collect(tree))
-          val expr1 = if (expr.isErroneous) treeToException(tree) else expr
-          val tree1 = Block(stmts.map(transform(_)), expr1)
-          val tree2 = localTyper.typed(tree1)
-          val tree3 = super.transform(tree2)
-          tree3
-        case s@Select(qualif, _) if (qualif.isErroneous) =>
-          Throw(s)
-          EmptyTree
+//        case Block(stmts, expr) =>
+//          println(ErrorCollector.collect(tree))
+//          val expr1 = if (expr.isErroneous) treeToException(tree) else expr
+//          val tree1 = Block(stmts.map(transform(_)), expr1)
+//          val tree2 = localTyper.typed(tree1)
+//          val tree3 = super.transform(tree2)
+//          tree
         case x if (x.isErroneous) =>
           treeToException(tree)
         case x =>

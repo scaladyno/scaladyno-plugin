@@ -10,15 +10,17 @@ import scala.tools.nsc.reporters.Reporter
 import scala.reflect.internal.util.Position
 import dyno.plugin.transform.prepare.DynoPrepareTreeTransformer
 import collection.mutable.Map
+import scala.reflect.internal.Phase
 
 object ErrorList {
 }
 
 /** Main miniboxing class */
 class Dyno(val global: Global) extends Plugin { plugin =>
-  // import global._
+  import global._
   
   val errorList:Map[Position, String] = Map.empty
+  var dynoPreparePhaseId:Int = 0
   
   val name = "dyno"
   val description = "provides value class functionality"
@@ -39,9 +41,11 @@ class Dyno(val global: Global) extends Plugin { plugin =>
     def info0(pos: Position, msg: String, severity: Severity, force: Boolean): Unit = {
       val (super_severity, super_msg) = severity match {
         case ERROR =>
-          // put in map
-          errorList.put(pos, "[suppressed error] " + msg)
-          (orig.WARNING, "[suppressed error] " + msg)
+          if (global.phase.name == global.analyzer.typerFactory.phaseName) {
+            errorList.put(pos, "[suppressed error] " + msg)
+            (orig.WARNING, "[suppressed error] " + msg)
+          } else
+            (orig.ERROR, msg)
         case WARNING => (orig.WARNING, msg)
         case INFO => (orig.INFO, msg)
         case _ => (orig.INFO, msg)
@@ -70,10 +74,11 @@ class Dyno(val global: Global) extends Plugin { plugin =>
 
     import global._
     val helper: plugin.helper.type = plugin.helper
-
+    
     var dynoPreparePhase : StdPhase = _
     override def newPhase(prev: scala.tools.nsc.Phase): StdPhase = {
       dynoPreparePhase = new Phase(prev)
+      dynoPreparePhaseId = dynoPreparePhase.id
       dynoPreparePhase
     }
     def errorList:Map[Position, String] = Dyno.this.errorList
