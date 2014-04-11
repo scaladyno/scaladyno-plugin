@@ -8,11 +8,18 @@ import metadata._
 import scala.tools.nsc.reporters.AbstractReporter
 import scala.tools.nsc.reporters.Reporter
 import scala.reflect.internal.util.Position
+import dyno.plugin.transform.prepare.DynoPrepareTreeTransformer
+import collection.mutable.Map
+
+object ErrorList {
+}
 
 /** Main miniboxing class */
 class Dyno(val global: Global) extends Plugin { plugin =>
   // import global._
-
+  
+  val errorList:Map[Position, String] = Map.empty
+  
   val name = "dyno"
   val description = "provides value class functionality"
 
@@ -23,13 +30,17 @@ class Dyno(val global: Global) extends Plugin { plugin =>
   // global reporter hack
   global.reporter = new OurHackedReporter(global.reporter)
   println("Reporter hacked...")
-
+  /*
+   * A reporter wrapper which will concert type errors into warnings to avoid stopping the compilation
+   */
   class OurHackedReporter(orig: Reporter) extends Reporter {
     val super_info0 = orig.getClass.getMethod("info0", classOf[Position], classOf[String], classOf[Severity], classOf[Boolean])
+    
     def info0(pos: Position, msg: String, severity: Severity, force: Boolean): Unit = {
       val (super_severity, super_msg) = severity match {
         case ERROR =>
           // put in map
+          errorList.put(pos, "[suppressed error] " + msg)
           (orig.WARNING, "[suppressed error] " + msg)
         case WARNING => (orig.WARNING, msg)
         case INFO => (orig.INFO, msg)
@@ -65,5 +76,6 @@ class Dyno(val global: Global) extends Plugin { plugin =>
       dynoPreparePhase = new Phase(prev)
       dynoPreparePhase
     }
+    def errorList:Map[Position, String] = Dyno.this.errorList
   }
 }

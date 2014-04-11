@@ -11,6 +11,9 @@ trait DynoInfo {
   import treeInfo._
   import definitions._
 
+  /*
+   * implicit classes have implicit wrapper functions
+   */
   implicit class RichTree(tree: Tree) {
     // todo
   }
