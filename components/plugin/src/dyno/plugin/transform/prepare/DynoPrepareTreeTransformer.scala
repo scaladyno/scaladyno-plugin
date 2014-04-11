@@ -48,31 +48,13 @@ trait DynoPrepareTreeTransformer extends InfoTransform {
       //println("prep: " + tree.getClass + " tpe: "+ tree.tpe + " tree: " +tree)
       //transform1 => do the matching
       tree match {
-        //tpe is a field of all trees => it is a "Type"
-        //isErroneous can be applied to any tree through TreeContextApiImpl which is implemented by tree
-        //  def isErroneous = (tpe ne null) && tpe.isErroneous
-        //  def isErrorTyped = (tpe ne null) && tpe.isError -> not recursive
-        /* 
-         * Error need to  bubble up to this level where it is safe to throw an exception
-         */
-        case DefDef(_, _, _, _, tpt, rhs) if (rhs.isErroneous || tpt.isErroneous) =>
-          treeToException(tree)
-         // localTyper.typed(gen.mkAttributedIdent(Predef_???))
-        case ValDef(mods, name, tpt, rhs) if (rhs.isErroneous || tpt.isErroneous) =>
-          treeToException(tree)
-        //case Assign(lhs, rhs) if (lhs.isErroneous || rhs.isErroneous)=>
-          //EmptyTree
-//        case Block(stmts, expr) =>
-//          println(ErrorCollector.collect(tree))
-//          val expr1 = if (expr.isErroneous) treeToException(tree) else expr
-//          val tree1 = Block(stmts.map(transform(_)), expr1)
-//          val tree2 = localTyper.typed(tree1)
-//          val tree3 = super.transform(tree2)
-//          tree
         case x if (x.isErroneous) =>
           treeToException(tree)
+        case _:DefTree if (tree.symbol.isErroneous) =>
+           treeToException(tree)
         case x =>
           super.transform(x)
+         
       }
     }
   }

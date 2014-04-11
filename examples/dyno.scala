@@ -22,7 +22,7 @@ object Test {
     val c = new C
     println(c.foo)
     println(T.bar)
-    c match {
+    /*c match {
       case ??? =>
         println("???")
       case x: D =>
@@ -33,7 +33,7 @@ object Test {
         println("NoSuchClass2")
       case NoSuchExtractor(x) =>
         println("NoSuchExtractor")
-    }
+    }*/
   }
 }
 

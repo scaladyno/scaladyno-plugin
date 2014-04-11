@@ -41,11 +41,11 @@ class Dyno(val global: Global) extends Plugin { plugin =>
     def info0(pos: Position, msg: String, severity: Severity, force: Boolean): Unit = {
       val (super_severity, super_msg) = severity match {
         case ERROR =>
-          if (global.phase.name == global.analyzer.typerFactory.phaseName) {
+          if (global.phase.name == global.analyzer.typerFactory.phaseName || global.phase.name == global.analyzer.namerFactory.phaseName) {
             errorList.put(pos, "[suppressed error] " + msg)
             (orig.WARNING, "[suppressed error] " + msg)
           } else
-            (orig.ERROR, msg)
+            (orig.ERROR, msg+" in phase:"+global.phase.name)
         case WARNING => (orig.WARNING, msg)
         case INFO => (orig.INFO, msg)
         case _ => (orig.INFO, msg)
