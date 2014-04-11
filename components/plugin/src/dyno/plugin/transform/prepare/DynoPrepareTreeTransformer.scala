@@ -44,14 +44,19 @@ trait DynoPrepareTreeTransformer extends InfoTransform {
       //println("prep: " + tree.getClass + " tpe: "+ tree.tpe + " tree: " +tree)
       //transform1 => do the matching
       tree match {
+        case Match(selector, cases) if (matchIsErroneous(selector, cases)) =>
+          treeToException(tree)
         case x if (x.isErroneous) =>
           treeToException(tree)
         case _:DefTree if (tree.symbol.isErroneous) =>
            treeToException(tree)
         case x =>
           super.transform(x)
-         
       }
+    }
+    
+    def matchIsErroneous(selector:Tree, cases:List[CaseDef]) = {
+      selector.isErroneous || cases.exists(c => c.pat.isErroneous || c.guard.isErroneous) 
     }
   }
   object ErrorCollector extends Traverser {

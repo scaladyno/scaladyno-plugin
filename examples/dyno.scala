@@ -14,6 +14,8 @@ object Test {
   trait D
 
   def main(args: Array[String]): Unit = {
+    val z = "www"
+    z[Int].foo
     val y = 123
     println(y.toString)
     println(y.asInstanceOf[List[NoSuchClass]].toString)
@@ -22,7 +24,7 @@ object Test {
     val c = new C
     println(c.foo)
     println(T.bar)
-    /*c match {
+    c match {
       case ??? =>
         println("???")
       case x: D =>
@@ -33,7 +35,7 @@ object Test {
         println("NoSuchClass2")
       case NoSuchExtractor(x) =>
         println("NoSuchExtractor")
-    }*/
+    }
   }
 }
 
