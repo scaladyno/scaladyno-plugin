@@ -25,16 +25,12 @@ trait DynoPrepareTreeTransformer extends InfoTransform {
   }
   class TreePreparer(unit: CompilationUnit) extends TypingTransformer(unit) {
     def apply(tree:Tree):Tree = { //called on the first iteration of tranform
-      println("Collected errors:")
-      errorList.foreach(println(_))
-      println("end of list")
       transform(tree)
     }
     
     def treeToErrString(tree:Tree):String = {
       val errors = ErrorCollector.collect(tree)
       val result = errors.map{ case (pos, str) => Position.formatMessage(pos, str, false)}.mkString("\n")
-      println(result)
       result
     }
     

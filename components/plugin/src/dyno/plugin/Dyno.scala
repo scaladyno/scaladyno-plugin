@@ -31,7 +31,6 @@ class Dyno(val global: Global) extends Plugin { plugin =>
 
   // global reporter hack
   global.reporter = new OurHackedReporter(global.reporter)
-  println("Reporter hacked...")
   /*
    * A reporter wrapper which will concert type errors into warnings to avoid stopping the compilation
    */
@@ -45,7 +44,7 @@ class Dyno(val global: Global) extends Plugin { plugin =>
             errorList.put(pos, "[suppressed error] " + msg)
             (orig.WARNING, "[suppressed error] " + msg)
           } else
-            (orig.ERROR, msg+" in phase:"+global.phase.name)
+            (orig.ERROR, msg)
         case WARNING => (orig.WARNING, msg)
         case INFO => (orig.INFO, msg)
         case _ => (orig.INFO, msg)
