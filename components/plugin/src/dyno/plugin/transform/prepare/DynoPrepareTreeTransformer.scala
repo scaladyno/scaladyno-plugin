@@ -30,6 +30,20 @@ trait DynoPrepareTreeTransformer extends InfoTransform {
       println("end of list")
       transform(tree)
     }
+    
+    def treeToErrString(tree:Tree):String = {
+      val errors = ErrorCollector.collect(tree)
+      val result = errors.map{ case (pos, str) => Position.formatMessage(pos, str, false)}.mkString("\n")
+      println(result)
+      result
+    }
+    
+    def treeToException(tree:Tree):Tree = {
+      val str = treeToErrString(tree)
+      val tree0 = gen.mkSysErrorCall(str) //factory for creating trees
+      localTyper.typed(tree0) //localTyper -> keep track of owner and scope to correctly type new nodes
+    }
+    
     override def transform(tree: Tree): Tree = { //[T <: Tree]
       //println("prep: " + tree.getClass + " tpe: "+ tree.tpe + " tree: " +tree)
       //transform1 => do the matching
@@ -42,25 +56,26 @@ trait DynoPrepareTreeTransformer extends InfoTransform {
          * Error need to  bubble up to this level where it is safe to throw an exception
          */
         case DefDef(_, _, _, _, tpt, rhs) if (rhs.isErroneous || tpt.isErroneous) =>
-          println(ErrorCollector.collect(tree))
-          localTyper.typed(gen.mkAttributedIdent(Predef_???))
+          treeToException(tree)
+         // localTyper.typed(gen.mkAttributedIdent(Predef_???))
           
 
         case ValDef(mods, name, tpt, rhs) if (rhs.isErroneous || tpt.isErroneous) =>
-          println(ErrorCollector.collect(tree))
-           localTyper.typed(gen.mkAttributedIdent(Predef_???))
+          treeToException(tree)
         //case Assign(lhs, rhs) if (lhs.isErroneous || rhs.isErroneous)=>
           //EmptyTree
         case Block(stmts, expr) =>
           println(ErrorCollector.collect(tree))
-          val expr1 = if (expr.isErroneous) gen.mkAttributedIdent(Predef_???) else expr
-          val tree1 = Block(stmts.filterNot(x => x.isErroneous), expr1)
+          val expr1 = if (expr.isErroneous) treeToException(tree) else expr
+          val tree1 = Block(stmts.map(transform(_)), expr1)
           val tree2 = localTyper.typed(tree1)
           val tree3 = super.transform(tree2)
           tree3
         case s@Select(qualif, _) if (qualif.isErroneous) =>
           Throw(s)
           EmptyTree
+        case x if (x.isErroneous) =>
+          treeToException(tree)
         case x =>
           super.transform(x)
       }
