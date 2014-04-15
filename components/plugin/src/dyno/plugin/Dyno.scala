@@ -18,10 +18,10 @@ object ErrorList {
 /** Main miniboxing class */
 class Dyno(val global: Global) extends Plugin { plugin =>
   import global._
-  
+
   val errorList:Map[Position, String] = Map.empty
   var dynoPreparePhaseId:Int = 0
-  
+
   val name = "dyno"
   val description = "provides value class functionality"
 
@@ -36,12 +36,12 @@ class Dyno(val global: Global) extends Plugin { plugin =>
    */
   class OurHackedReporter(orig: Reporter) extends Reporter {
     val super_info0 = orig.getClass.getMethod("info0", classOf[Position], classOf[String], classOf[Severity], classOf[Boolean])
-    
+
     def info0(pos: Position, msg: String, severity: Severity, force: Boolean): Unit = {
       val (super_severity, super_msg) = severity match {
         case ERROR =>
           if (global.phase.name == global.analyzer.typerFactory.phaseName || global.phase.name == global.analyzer.namerFactory.phaseName) {
-            errorList.put(pos, "[suppressed error] " + msg)
+            errorList.put(pos, msg)
             (orig.WARNING, "[suppressed error] " + msg)
           } else
             (orig.ERROR, msg)
@@ -73,7 +73,7 @@ class Dyno(val global: Global) extends Plugin { plugin =>
 
     import global._
     val helper: plugin.helper.type = plugin.helper
-    
+
     var dynoPreparePhase : StdPhase = _
     override def newPhase(prev: scala.tools.nsc.Phase): StdPhase = {
       dynoPreparePhase = new Phase(prev)
