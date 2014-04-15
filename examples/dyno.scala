@@ -1,6 +1,3 @@
-
-package dyno.tests.basic
-
 object Test {
 
   object T {
