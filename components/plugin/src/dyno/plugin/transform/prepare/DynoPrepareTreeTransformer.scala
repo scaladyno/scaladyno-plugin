@@ -13,9 +13,9 @@ trait DynoPrepareTreeTransformer extends InfoTransform {
   import global._
   import definitions._
   import helper._
-  
+
   def errorList:Map[Position, String]
-  
+
   override def transformInfo(sym: Symbol, info: Type): Type = {
     if ((sym.isClass || sym.isTrait || sym.isModule) && currentRun.compiles(sym))
       for (mbr <- info.decls if mbr.tpe.isErroneous)
@@ -27,19 +27,19 @@ trait DynoPrepareTreeTransformer extends InfoTransform {
     def apply(tree:Tree):Tree = { //called on the first iteration of tranform
       transform(tree)
     }
-    
+
     def treeToErrString(tree:Tree):String = {
       val errors = ErrorCollector.collect(tree)
-      val result = errors.map{ case (pos, str) => Position.formatMessage(pos, str, false)}.mkString("\n")
+      val result = "Compile-time error(s):\n\n" + errors.map{ case (pos, str) => Position.formatMessage(pos, str, false)}.mkString("\n") + "\nStacktrace:"
       result
     }
-    
+
     def treeToException(tree:Tree):Tree = {
       val str = treeToErrString(tree)
       val tree0 = gen.mkSysErrorCall(str) //factory for creating trees
       localTyper.typed(tree0) //localTyper -> keep track of owner and scope to correctly type new nodes
     }
-    
+
     override def transform(tree: Tree): Tree = { //[T <: Tree]
       //println("prep: " + tree.getClass + " tpe: "+ tree.tpe + " tree: " +tree)
       //transform1 => do the matching
@@ -54,9 +54,9 @@ trait DynoPrepareTreeTransformer extends InfoTransform {
           super.transform(x)
       }
     }
-    
+
     def matchIsErroneous(selector:Tree, cases:List[CaseDef]) = {
-      selector.isErroneous || cases.exists(c => c.pat.isErroneous || c.guard.isErroneous) 
+      selector.isErroneous || cases.exists(c => c.pat.isErroneous || c.guard.isErroneous)
     }
   }
   object ErrorCollector extends Traverser {
@@ -69,7 +69,7 @@ trait DynoPrepareTreeTransformer extends InfoTransform {
       case _ =>
         errorList.get(tree.pos) match {
           case None =>
-          case Some(err) => buffer ::= (tree.pos, err)
+          case Some(err) => buffer ::= tree.pos -> err
         }// if there's any error for tree.pos, store it in the buffer
         super.traverse(tree)
     }
@@ -82,4 +82,3 @@ trait DynoPrepareTreeTransformer extends InfoTransform {
   }
 
 }
-  
