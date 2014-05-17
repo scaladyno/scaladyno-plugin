@@ -17,6 +17,8 @@ trait DynoPreparePhase extends
   def afterPrepare[T](op: => T): T = global.exitingPhase(dynoPreparePhase)(op)
   def beforePrepare[T](op: => T): T = global.enteringPhase(dynoPreparePhase)(op)
 
+  def revertReporter(): Unit
+
   override def newTransformer(unit: CompilationUnit): Transformer = new Transformer {
     override def transform(tree: Tree) = {
       // [error] /Users/xeno_by/Projects/dyno/tests/correctness/test/dyno/partest/CompileTest.scala:30: [dyno-verify] tree not typed: $anonfun.this.apply$mcV$sp()

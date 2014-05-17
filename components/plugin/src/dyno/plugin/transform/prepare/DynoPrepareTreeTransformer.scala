@@ -25,7 +25,9 @@ trait DynoPrepareTreeTransformer extends InfoTransform {
   }
   class TreePreparer(unit: CompilationUnit) extends TypingTransformer(unit) {
     def apply(tree:Tree):Tree = { //called on the first iteration of tranform
-      transform(tree)
+      val res = transform(tree)
+      revertReporter()
+      res
     }
 
     def treeToErrString(tree:Tree):String = {

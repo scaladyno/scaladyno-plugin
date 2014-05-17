@@ -34,11 +34,11 @@ class Dyno(val global: Global) extends Plugin { plugin =>
    *  Not issuing errors enables us to continue the compilation process and implement special behavior for branches with erroneous types.
    */
   global.reporter = new OurHackedReporter(global.reporter)
-  
+
   /*
    * A reporter wrapper which will convert type errors into warnings to avoid stopping the compilation
    */
-  class OurHackedReporter(orig: Reporter) extends Reporter {
+  class OurHackedReporter(val orig: Reporter) extends Reporter {
     val super_info0 = orig.getClass.getMethod("info0", classOf[Position], classOf[String], classOf[Severity], classOf[Boolean])
     def info0(pos: Position, msg: String, severity: Severity, force: Boolean): Unit = {
       val (super_severity, super_msg) = severity match {
@@ -88,5 +88,13 @@ class Dyno(val global: Global) extends Plugin { plugin =>
       dynoPreparePhase
     }
     def errorList:Map[Position, String] = Dyno.this.errorList
+
+    def revertReporter(): Unit = {
+      global.reporter match {
+        case rep: OurHackedReporter =>
+          global.reporter = rep.orig
+        case _ =>
+      }
+    }
   }
 }
