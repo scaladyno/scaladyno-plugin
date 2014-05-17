@@ -33,6 +33,7 @@ class Dyno(val global: Global) extends Plugin { plugin =>
    *  Through reflection we change the default reporter of the compiler such that it only yields warnings and no errors for typing and naming errors.
    *  Not issuing errors enables us to continue the compilation process and implement special behavior for branches with erroneous types.
    */
+  // global.settings.skip.tryToSetColon(List("refchecks"))
   global.reporter = new OurHackedReporter(global.reporter)
 
   /*
