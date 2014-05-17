@@ -19,7 +19,7 @@ object ErrorList {
 class Dyno(val global: Global) extends Plugin { plugin =>
   import global._
 
-  val errorList:Map[Position, String] = Map.empty
+  val errorList:Map[Position, String] = Map.empty //a maping which collects are erros which have been converted to warnings, their position is used as key
   var dynoPreparePhaseId:Int = 0
 
   val name = "dyno"
@@ -29,22 +29,27 @@ class Dyno(val global: Global) extends Plugin { plugin =>
     DynoPreparePhaseObj
   )
 
-  // global reporter hack
-  global.reporter = new OurHackedReporter(global.reporter)
   /*
-   * A reporter wrapper which will concert type errors into warnings to avoid stopping the compilation
+   *  Through reflection we change the default reporter of the compiler such that it only yields warnings and no errors for typing and naming errors.
+   *  Not issuing errors enables us to continue the compilation process and implement special behavior for branches with erroneous types.
+   */
+  global.reporter = new OurHackedReporter(global.reporter)
+  
+  /*
+   * A reporter wrapper which will convert type errors into warnings to avoid stopping the compilation
    */
   class OurHackedReporter(orig: Reporter) extends Reporter {
     val super_info0 = orig.getClass.getMethod("info0", classOf[Position], classOf[String], classOf[Severity], classOf[Boolean])
-
     def info0(pos: Position, msg: String, severity: Severity, force: Boolean): Unit = {
       val (super_severity, super_msg) = severity match {
         case ERROR =>
+          //only mute errors which results from identifier, method or field resolution which happen during the namer or typer phase
           if (global.phase.name == global.analyzer.typerFactory.phaseName || global.phase.name == global.analyzer.namerFactory.phaseName) {
             errorList.put(pos, msg)
             (orig.WARNING, "[suppressed error] " + msg)
           } else
             (orig.ERROR, msg)
+        //don't change the behaviour of all other severities
         case WARNING => (orig.WARNING, msg)
         case INFO => (orig.INFO, msg)
         case _ => (orig.INFO, msg)
@@ -52,7 +57,6 @@ class Dyno(val global: Global) extends Plugin { plugin =>
       super_info0.invoke(orig, pos, super_msg, super_severity, force.asInstanceOf[AnyRef])
     }
   }
-
 
   lazy val helper = new { val global: plugin.global.type = plugin.global } with DynoHelper
 
@@ -65,6 +69,9 @@ class Dyno(val global: Global) extends Plugin { plugin =>
     }
   }
 
+  /*
+   * general setting for the compiler plugin
+   */
   private object DynoPreparePhaseObj extends DynoPreparePhase { self =>
     val global: Dyno.this.global.type = Dyno.this.global
     val runsAfter = List("typer")

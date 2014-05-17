@@ -19,7 +19,7 @@ then
   exit 1
 fi
 
-SCALA_VERSION=2.11.0-RC1
+SCALA_VERSION=2.11
 DYNO_VERSION=0.1-SNAPSHOT
 PLUGIN_JAR=$DYNO_PATH/components/plugin/target/scala-$SCALA_VERSION/dyno-plugin_$SCALA_VERSION-$DYNO_VERSION.jar
 

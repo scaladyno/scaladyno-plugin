@@ -1,7 +1,7 @@
 
 name := "dyno"
 
-scalaVersion in Global := "2.11.0-RC1"
+scalaVersion in Global := "2.11.0"
 
 version in Global := "0.1-SNAPSHOT"
 

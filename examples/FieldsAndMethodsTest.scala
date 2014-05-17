@@ -8,6 +8,7 @@ class SimpleClass(arg1: Int, arg2: String) {
 object Test {
   def main(args: Array[String]): Unit = {
   	println("Field and method access test.");
+    NeverCalled()
   }
 
   def NeverCalled() {
