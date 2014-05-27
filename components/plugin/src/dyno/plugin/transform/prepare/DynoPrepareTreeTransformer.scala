@@ -32,14 +32,20 @@ trait DynoPrepareTreeTransformer extends InfoTransform {
 
     def treeToErrString(tree:Tree):String = {
       val errors = ErrorCollector.collect(tree)
-      val result = "Compile-time error(s):\n\n" + errors.map{ case (pos, str) => Position.formatMessage(pos, str, false)}.mkString("\n") + "\nStacktrace:"
-      result
+      if (errors.isEmpty)
+        null
+      else
+        "Deferred compile-time error(s):\n\n" + errors.map{ case (pos, str) => Position.formatMessage(pos, str, false)}.mkString("\n") + "\nStacktrace:"
     }
 
     def treeToException(tree:Tree):Tree = {
       val str = treeToErrString(tree)
-      val tree0 = gen.mkSysErrorCall(str) //factory for creating trees
-      localTyper.typed(tree0) //localTyper -> keep track of owner and scope to correctly type new nodes
+      if (str != null) {
+        val tree0 = gen.mkSysErrorCall(str) //factory for creating trees
+        localTyper.typed(tree0) //localTyper -> keep track of owner and scope to correctly type new nodes
+      } else {
+        localTyper.typed(Literal(Constant(())))
+      }
     }
 
     override def transform(tree: Tree): Tree = { //[T <: Tree]
