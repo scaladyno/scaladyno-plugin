@@ -44,11 +44,11 @@ one warning found
 Wow, it compiles :). Now let's try to run it:
 
 ```
-$ ../dy-scala dyno.demo.Test
+$ scala dyno.demo.Test
 line> ok
 okay
 
-$ ../dy-scala dyno.demo.Test
+$ scala dyno.demo.Test
 line> boo
 java.lang.RuntimeException: Deferred compile-time error(s):
 
