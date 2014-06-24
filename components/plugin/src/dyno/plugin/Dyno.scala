@@ -15,7 +15,7 @@ import scala.reflect.internal.Phase
 object ErrorList {
 }
 
-/** Main miniboxing class */
+/** Main scaladyno class */
 class Dyno(val global: Global) extends Plugin { plugin =>
   import global._
 
