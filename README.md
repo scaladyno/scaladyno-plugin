@@ -3,7 +3,9 @@ scaladyno-plugin
 
 scaladyno is an attempt to make scala a more dynamic language :)
 
-Let's take the following file:
+** Scaladyno doesn't have a maintainer atm, since @CedricBastin is busy with other projects. Without proper support and engineering, we can't recommend anyone to use scaladyno on large code bases. Really sorry about that! If you're interested in becoming a maintainer, drop @CedricBastin or @VladUreche an email.**
+
+Let's take the following example:
 ```
 $ cat demo.scala 
 
@@ -23,6 +25,7 @@ object Test {
 ```
 
 And try to compile it:
+
 ```
 $ scalac demo.scala 
 demo.scala:10: error: not found: type NoSuchClass
@@ -31,17 +34,28 @@ demo.scala:10: error: not found: type NoSuchClass
 one error found
 ```
 
-Of course, it doesn't compile. But what if we use ScalaDyno?
+Of course, it doesn't compile. 
+
+But what if we use ScalaDyno? It should :)
+
+First, let's set it up:
+```
+$ git clone https://github.com/scaladyno/scaladyno-plugin.git
+$ cd scaladyno-plugin
+$ sbt package
+```
+
+You should also have a local instalaltion of Scala 2.11.2 and the `SCALA_PATH` set to its bin directory. Now you can run:
 
 ```
-$ ../dy-scalac demo.scala 
+$ ./dy-scalac demo.scala 
 demo.scala:10: warning: [suppressed error] not found: type NoSuchClass
       val x = new NoSuchClass
                   ^
 one warning found
 ```
 
-Wow, it compiles :). Now let's try to run it:
+Wow, it compiles. Now let's try to run it:
 
 ```
 $ scala dyno.demo.Test
@@ -78,7 +92,8 @@ Stacktrace:
 	at scala.tools.nsc.MainGenericRunner.main(MainGenericRunner.scala)
 ```
 
-So, where's the magic? It's in ScalaDyno:
+So, where's the magic? It's in ScalaDyno: 
+
 ```
 $ ../dy-scalac -Xprint:typer,dyno demo.scala 
 demo.scala:10: warning: [suppressed error] not found: type NoSuchClass
@@ -123,3 +138,5 @@ package dyno.demo {
 
 one warning found
 ```
+
+[If you want to learn more about scaladyno and how it works, see this SCALA'14 paper](http://infoscience.epfl.ch/record/200962?ln=en)
