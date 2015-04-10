@@ -3,7 +3,7 @@ scaladyno-plugin
 
 scaladyno is an attempt to make scala a more dynamic language :)
 
-** Scaladyno doesn't have a maintainer atm, since @CedricBastin is busy with other projects. Without proper support and engineering, we can't recommend anyone to use scaladyno on large code bases. Really sorry about that! If you're interested in becoming a maintainer, drop @CedricBastin or @VladUreche an email.**
+**Scaladyno doesn't have a maintainer atm, since @CedricBastin is busy with other projects. Without proper support and engineering, we can't recommend anyone to use scaladyno on large code bases. Really sorry about that! If you're interested in becoming a maintainer, drop @CedricBastin or @VladUreche an email.**
 
 Let's take the following example:
 ```
